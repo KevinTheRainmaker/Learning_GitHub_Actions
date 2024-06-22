@@ -1,45 +1,43 @@
 name: Pipeline
 run-name: Pipeline run by @${{ github.actor }} # github 컨텍스트의 actor 속성: 유저명 기록
 
-
 env: # 환경변수 매핑하여 env context에 저장
-    PIPE: cicd # workflow level
+  PIPE: cicd # workflow level
 
 on:
-    push:
+  push:
 
 defaults: # 기본값 지정
-    run:
-        shell: bash
-        working-directory: workdir
+  run:
+    shell: bash
+    working-directory: workdir
+
 jobs:
-    build:
-        env:
-            STAGE: dev # job level
-    test:
-        runs-on: ubuntu-latest
-        defaults: # job 설정의 기본값이 우선시 됨
-            run:
-                shell: sh
-                working-directory: test
-            steps:
-                - uses: actions/checkout@v3
-                - run: echo "in test"
-        
+  build:
+    env:
+      STAGE: dev # job level
+    runs-on: ubuntu-latest
+    defaults: # job 설정의 기본값이 우선시 됨
+      run:
+        shell: sh
+        working-directory: test
     steps:
-        - name: create item with token
+      - uses: actions/checkout@v3
+      - run: echo "in test"
+      - name: create item with token
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # step level
-            # 변수 우선순위: step > job > workflow
-    report-url:
-        runs-on: ubuntu-latest
-        steps:
-            - run: echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
-            - run: echo ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} # 위와 동일
-    report-os:
-        runs-on: ubuntu-latest
-        steps:
-            - name: check-os
-            if: runner.os != 'Windows'
-            run: echo "The runner's OS is $RUNNER_OS"
-        
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # step level
+        run: echo "Token created" # add a run command for the step
+
+  report-url:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+      - run: echo ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} # 위와 동일
+
+  report-os:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check-os
+        if: runner.os != 'Windows'
+        run: echo "The runner's OS is $RUNNER_OS"
